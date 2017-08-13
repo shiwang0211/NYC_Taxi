@@ -43,3 +43,49 @@ def PlotFeatureImp(feature_importance_table):
     sns.set_style("darkgrid")
     sns.factorplot(x="importance", y="feature_name",data=feature_importance_table, kind="bar")
     plt.savefig('./fig/Feature_Imp_XGB.png',dpi=100)
+    
+
+def LonLatPlot(train):
+    sns.set(style="darkgrid", palette="muted")
+    f, axes = plt.subplots(2,2,figsize=(12, 12), sharex = False, sharey = False)#
+    sns.despine(left=True) # if true, remove the ax
+    sns.distplot(train['pickup_latitude'].values, color="m",bins = 100, ax=axes[0,0])
+    sns.distplot(train['pickup_longitude'].values, color="g",bins =100, ax=axes[0,1])
+    sns.distplot(train['dropoff_latitude'].values, color="m",bins =100, ax=axes[1,0])
+    sns.distplot(train['dropoff_longitude'].values, color="g",bins =100, ax=axes[1,1])
+    axes[0, 0].set_title('pickup_latitude')
+    axes[0, 1].set_title('pickup_longitude')
+    axes[1, 0].set_title('dropoff_latitude')
+    axes[1, 1].set_title('dropoff_longitude')
+    plt.setp(axes, yticks=[])
+    plt.tight_layout()
+    plt.savefig('./fig/Lat_Lon_Plot.png',dpi=100)
+
+def ViolinPlot(train, y_, row_, hue_):
+    sns.set(style="darkgrid")
+    sns.violinplot(x=row_, 
+                   y=y_, 
+                   hue=hue_, data=train, split=True,
+                   inner="quart")
+
+def PivotPlot(train, y_, row_, col_):
+    sns.set(style="darkgrid")
+    pivot_table=pd.pivot_table(train, index=row_, columns=col_, values=y_, aggfunc=np.mean)
+    sns.heatmap(pivot_table)
+    plt.tight_layout()
+    plt.savefig('./fig/'+ row_ + '_and_' + col_ + '_Pivot.png',dpi=100)
+    
+def Time_Distance_Plot(train):
+    sample_ind = np.random.permutation(len(train))[:5000]
+    sns.lmplot(x='distance_haversine', y='log_trip_duration', data = train.iloc[sample_ind], scatter_kws={"s": 10})   
+    plt.savefig('./fig/Time_Distance_Pivot.png',dpi=100)
+
+def Two_Hist_Plot(train, test):
+    sns.set_style("darkgrid")
+    sns.kdeplot(train['log_trip_duration'], shade=True, label = 'Train', color = 'b')
+    sns.kdeplot(test['log_trip_duration'], shade=True, label = 'Test', color = 'r')
+    plt.legend()
+    plt.xlabel('Log(Duration)')
+    plt.ylabel('Frequency')
+    plt.tight_layout()
+    plt.savefig('./fig/Two_His_Plot.png',dpi=100)            

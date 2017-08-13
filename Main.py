@@ -43,13 +43,25 @@ train = pd.read_csv('C:/Users/shiwa/Desktop/train.csv')
 test = pd.read_csv('C:/Users/shiwa/Desktop/test.csv')
 
 # Feature Engineering
-train['log_trip_duration'] = np.log(train['trip_duration'].values + 1)
+train['log_trip_duration'] = np.log(train['trip_duration'].values + 1)    
+city_long_border = (-74.03, -73.75)
+city_lat_border = (40.63, 40.85)
+train = train[(train.pickup_latitude > city_lat_border[0]) & (train.pickup_latitude < city_lat_border[1])]
+train = train[(train.dropoff_latitude > city_lat_border[0]) & (train.dropoff_latitude < city_lat_border[1])]
+train = train[(train.pickup_longitude > city_long_border[0]) & (train.pickup_longitude < city_long_border[1])]
+train = train[(train.dropoff_longitude > city_long_border[0]) & (train.dropoff_longitude < city_long_border[1])]
+
+# For both train and test
 train = FeatureEng(train)
 test = FeatureEng(test)
 
 # Visualization
+LonLatPlot(train)
+ViolinPlot(train, 'log_trip_duration','passenger_count', 'vendor_id')
 Hist(train['log_trip_duration'], 'Log (Duration)', 'Log Trip Duration His')
 CountPlot(train, 'pickup_weekday_name','Day of Week', 4, 2)
+PivotPlot(train, 'log_trip_duration', 'pickup_hour', 'pickup_weekday')
+Time_Distance_Plot(train)
 
 # Calculate distance and speed
 train['avg_speed_h'] = train['distance_haversine'] / train['trip_duration'] * 3600# in the unit of km/hr
@@ -82,7 +94,7 @@ feature_stats['train_mean'] = np.nanmean(train[feature_names].values, axis=0)
 feature_stats['train_std'] = np.nanstd(train[feature_names].values, axis=0)
 feature_stats['train_nan'] = np.mean(np.isnan(train[feature_names].values), axis=0)
 
-## Start training the XGB
+## Start training the XGB - eXtreme Gradient Boosting
 # Note, the parameters should be further tuned
 xgb_pars = {'eta': 0.3, 'colsample_bytree': 0.3, 'max_depth': 10,
             'subsample': 0.5, 'lambda': 1, 'booster' : 'gbtree', 'silent':0,
@@ -111,5 +123,9 @@ PlotFeatureImp(feature_importance_table)
 Xte = test[feature_names]
 dtest = xgb.DMatrix(Xte)
 Yte = xgb_model.predict(dtest)
+test['log_trip_duration'] = Yte
 test['trip_duration'] = np.exp(Yte) - 1
 test[['id', 'trip_duration']].to_csv('C:/Users/shiwa/Desktop/Prediction_Output.csv', index=False)
+Two_Hist_Plot(train, test)
+
+
