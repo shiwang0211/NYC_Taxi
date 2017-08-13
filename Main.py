@@ -80,7 +80,7 @@ map_object = folium.Map(location=[40.767937,-73.982155], tiles='CartoDB dark_mat
 #marker_cluster = folium.MarkerCluster().add_to(map_object)
 for point in range(0, len(locationlist)):
     folium.Marker(locationlist[point]).add_to(map_object)
-folium.Map.save(map_object, "index.html")
+folium.Map.save(map_object, "Leaflet_Map.html")
 
 # Exclude feature not for model development
 feature_names = list(train.columns)

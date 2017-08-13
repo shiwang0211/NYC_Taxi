@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import numpy as np
 
 def haversine_array(lat1, lng1, lat2, lng2):
